@@ -1,29 +1,34 @@
 package com.ryan9025.dog_dictionary.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Data // @Getter, @Setter, @RequiredArgsConstructor,
-      // @ToString, @EqualsAndHashCode 를 한번에 설정해주는 어노테이션
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
-@EntityListeners(AuditingEntityListener.class) // 자동으로 날짜를 생성
-@Table(name = "Board")
-public class Board {
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "User")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String image;
-    private String content;
+    private String userId;
+    private String password;
+    private String nickname;
+    private String tel;
+    private String email;
+    private String role;
 
     @CreatedDate
     private LocalDateTime createdDate;
