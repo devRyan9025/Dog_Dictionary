@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<div layout:fragment="content" class="main">
+    <div class="container">
+        <h2 class="title">회원정보</h2>
+        <table class="table userList">
+            <colgroup>
+                <col style="width : 2%">
+                <col style="width : 10%">
+                <col style="width : 10%">
+                <col style="width : 15%">
+                <col style="width : 10%">
+                <col style="width : 10%">
+                <col style="width : 10%">
+            </colgroup>
+            <thead>
+            <tr>
+                <th>
+                    <label class="checkbox">
+                        <input type="checkbox" id="selectAll">
+                    </label>
+                </th>
+                <th scope="col">이메일</th>
+                <th scope="col">닉네임</th>
+                <th scope="col">지역</th>
+                <th scope="col">견종 사이즈</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="user : ${userList}">
+                <th:block th:if="${user.id == 1}" style="display:none">
+
+                </th:block>
+                <th:block th:unless="${user.id == 1}">
+                    <tr>
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" class="selectSome" th:value="${user.id}">
+                            </label>
+                        </td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.nickname}"></td>
+                        <td th:text="${user.region}"></td>
+                        <td th:text="${user.dogSize}"></td>
+                        <td><button class="btn btn-danger btnDeleteUser" id="btnDeleteUser" th:data-idx="${user.id}">삭제</button></td>
+                    </tr>
+                </th:block>
+            </th:block>
+            </tbody>
+        </table>
+        <div>
+            <button class="btn btn-dark" id="deleteSome">선택 삭제</button>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        $("#btnDeleteUser").on("click",function (e) {
+            console.log("개별선택");
+            e.preventDefault();
+            const id=  $(this).data("idx");
+            $.ajax({
+                url : `api/deleteOne/${id}`,
+                method : "DELETE",
+                success : function (response) {
+                    if(response.deleteUser === "OK") {
+                        $(this).closest("tr").fadeOut();
+                    }
+                }
+            })
+        });
+
+        const checkObj = $(".selectSome");
+        const rowCnt = checkObj.length;
+
+        $("#selectAll").on("click", function () {
+            let check_listArr = $(".selectSome");
+            for(let i = 0; i<check_listArr.length; i++) {
+                check_listArr[i].checked = this.checked;
+            }
+        });
+
+        $("input[class='selectSome']").on("click",function () {
+            $("#selectAll")[0].checked = $(".selectSome:checked").length === rowCnt;
+        });
+        $("#deleteSome").on("click",function (e) {
+            e.preventDefault();
+            console.log("선택삭제");
+            let url = "api/deleteSelected";
+            let valueArr = [];
+            let list = $(".selectSome");
+            for(let i = 0; i < list.length; i++) {
+                if(list[i].checked) { //선택돼 있으면 배열에 값을 저장함
+                    valueArr.push(parseInt(list[i].value));
+                }
+            }
+            if( valueArr.length === 0) {
+                alert("선택된 글이 없습니다.");
+            } else {
+                let check = confirm("정말 삭제 하시겠습니까?");
+                $.ajax({
+                    url : url,
+                    method: "DELETE",
+                    data : {
+                        valueArr : valueArr
+                    },
+                    success : function (data) {
+                        console.log(data);
+                        if(data.deleteSelected === "OK") {
+                            $(".userList tbody tr").each(function() {
+                                if($(this).find("input[type='checkbox']").is(":checked")) {
+                                    $(this).fadeOut();
+                                }
+                            })
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+</html>
